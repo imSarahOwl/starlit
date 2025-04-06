@@ -8,8 +8,7 @@ def _run_powershell_command(command):
     result = subprocess.run(
         ['powershell', '-Command', command],
         capture_output=True,
-        text=True,
-        encoding="utf-16"
+        text=True
     )
     return [line.strip() for line in result.stdout.splitlines() if line.strip()]
 
@@ -40,15 +39,15 @@ def get_apps():
             def getName(self):
                 return self.name
 
-            def getExec():
+            def getExec(self):
                 return self.appID
 
             
-        names = run_powershell_command('Get-StartApps | Select-Object -ExpandProperty Name')
-        appids = run_powershell_command('Get-StartApps | Select-Object -ExpandProperty AppID')
+        names = _run_powershell_command('Get-StartApps | Select-Object -ExpandProperty Name')
+        appids = _run_powershell_command('Get-StartApps | Select-Object -ExpandProperty AppID')
 
         apps = [owl_app(name, appid) for name, appid in zip(names, appids)]
         return apps
-        
+    
 
 

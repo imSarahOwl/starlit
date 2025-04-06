@@ -4,6 +4,12 @@ from PySide6.QtCore import Qt
 from utils.get_apps import get_apps
 from utils.launch_app import launch_app
 
+
+# simple caching
+cached_apps = []
+for app in get_apps():
+    cached_apps.append(app)
+
 class MainWindow(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
@@ -32,11 +38,11 @@ class MainWindow(QtWidgets.QWidget):
         
     def finder(self):
         print(self.entry.text())
-        filtered_apps = [app.getName() for app in get_apps() if app.getName().lower().startswith(self.entry.text().lower())]
+        filtered_apps = [app.getName() for app in cached_apps if app.getName().lower().startswith(self.entry.text().lower())]
         return filtered_apps[:2]
     
     def handle_open_app(self):
-        apps = get_apps()
+        apps = cached_apps
         app_name = self.finder()
         for app in apps:
             if len(app_name) != 0 and app.getName().lower() == app_name[0].lower():
