@@ -4,7 +4,6 @@ from xdg.BaseDirectory import xdg_data_dirs
 
 
 def _run_powershell_command(command):
-    """Runs a PowerShell command and returns the output as a list of lines."""
     result = subprocess.run(
         ['powershell', '-Command', command],
         capture_output=True,
