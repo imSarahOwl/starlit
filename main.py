@@ -56,6 +56,7 @@ if __name__ == "__main__":
     widget = MainWindow()
     widget.setFixedSize(700,100)
     widget.setWindowTitle("Starlit")
+    widget.setWindowFlag(QtCore.Qt.FramelessWindowHint)
     widget.show()
 
     sys.exit(appie.exec())
