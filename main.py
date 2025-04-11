@@ -1,4 +1,4 @@
-import sys, random
+import sys
 from PySide6 import QtCore, QtWidgets, QtGui
 from PySide6.QtCore import Qt
 from utils.get_apps import get_apps
@@ -7,8 +7,9 @@ from utils.launch_app import launch_app
 
 # simple caching
 cached_apps = []
-for app in get_apps():
+for app in get_apps():  # type: ignore
     cached_apps.append(app)
+
 
 class MainWindow(QtWidgets.QWidget):
     def __init__(self):
@@ -17,16 +18,15 @@ class MainWindow(QtWidgets.QWidget):
         self.layout = QtWidgets.QVBoxLayout(self)
         self.entry = QtWidgets.QLineEdit()
         self.entry.setPlaceholderText("")
-        self.entry.setFixedSize(700, 100)      
+        self.entry.setFixedSize(700, 100)
         self.entry.textChanged.connect(self.finder)
 
         # define theme
-        with open('./style/style.qss', "r") as f:
+        with open("./style/style.qss", "r") as f:
             self.setStyleSheet(f.read())
 
-        self.layout.setContentsMargins(0, 0, 0, 0)  
+        self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.addWidget(self.entry)
-
 
     # equivalent to escclose()
     def keyPressEvent(self, event: QtGui.QKeyEvent):
@@ -34,13 +34,16 @@ class MainWindow(QtWidgets.QWidget):
             appie.exit()
         elif event.key() == Qt.Key_Return:
             self.handle_open_app()
-        
-        
+
     def finder(self):
         print(self.entry.text())
-        filtered_apps = [app.getName() for app in cached_apps if app.getName().lower().startswith(self.entry.text().lower())]
+        filtered_apps = [
+            app.getName()
+            for app in cached_apps
+            if app.getName().lower().startswith(self.entry.text().lower())
+        ]
         return filtered_apps[:2]
-    
+
     def handle_open_app(self):
         apps = cached_apps
         app_name = self.finder()
@@ -54,9 +57,10 @@ if __name__ == "__main__":
     appie = QtWidgets.QApplication([])
 
     widget = MainWindow()
-    widget.setFixedSize(700,100)
+    widget.setFixedSize(700, 100)
     widget.setWindowTitle("Starlit")
     widget.setWindowFlag(QtCore.Qt.FramelessWindowHint)
     widget.show()
 
     sys.exit(appie.exec())
+
