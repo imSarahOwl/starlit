@@ -1,5 +1,6 @@
 import sys
 from PySide6 import QtCore, QtWidgets, QtGui
+from thefuzz import fuzz
 from PySide6.QtCore import Qt
 from utils.get_apps import get_apps
 from utils.launch_app import launch_app
@@ -9,6 +10,15 @@ from utils.launch_app import launch_app
 cached_apps = []
 for app in get_apps():  # type: ignore
     cached_apps.append(app)
+
+
+# because thefuzz doesn't support me just saying bleh and using process with a specific scorer
+# we have custom function, glory to arstotzka
+def fuzzy_partial_match(query, choices, limit=3):
+    scored = [
+        (choice, fuzz.partial_token_sort_ratio(query, choice)) for choice in choices
+    ]
+    return sorted(scored, key=lambda x: x[1], reverse=True)[:limit]
 
 
 class MainWindow(QtWidgets.QWidget):
@@ -37,18 +47,20 @@ class MainWindow(QtWidgets.QWidget):
 
     def finder(self):
         print(self.entry.text())
-        filtered_apps = [
-            app.getName()
-            for app in cached_apps
-            if app.getName().lower().startswith(self.entry.text().lower())
-        ]
-        return filtered_apps[:2]
+
+        filtered_apps = []
+        if len(self.entry.text()) > 1:
+            filtered_apps = [
+                match[0].getName()
+                for match in fuzzy_partial_match(self.entry.text(), cached_apps)
+            ]
+        return filtered_apps
 
     def handle_open_app(self):
         apps = cached_apps
         app_name = self.finder()
         for app in apps:
-            if len(app_name) != 0 and app.getName().lower() == app_name[0].lower():
+            if len(app_name) != 0 and app.getName().lower() == app_name[2].lower():
                 launch_app(app.getExec())
                 appie.exit()
 
@@ -63,4 +75,3 @@ if __name__ == "__main__":
     widget.show()
 
     sys.exit(appie.exec())
-
