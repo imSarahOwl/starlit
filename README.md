@@ -20,3 +20,6 @@ python main.py
 ```
 
 just this, and the code runs
+
+> [!WARNING]
+> this is a test branch for converting it into a tray-living app
