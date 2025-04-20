@@ -61,6 +61,6 @@ class MainWindow(QtWidgets.QWidget):
         apps = cached_apps
         app_name = self.finder()
         for app in apps:
-            if len(app_name) != 0 and app.getName().lower() == app_name[2].lower():
+            if len(app_name) != 0 and app.getName().lower() == app_name[0].lower():
                 launch_app(app.getExec())
                 self.close()
