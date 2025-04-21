@@ -1,77 +1,69 @@
-import sys
-from PySide6 import QtCore, QtWidgets, QtGui
-from thefuzz import fuzz
-from PySide6.QtCore import Qt
-from utils.get_apps import get_apps
-from utils.launch_app import launch_app
+import sys, argparse
+from PySide6 import QtCore, QtWidgets
+from PySide6.QtGui import QIcon, QAction
+from utils.server import another_running_instance, create_server, send_message
+from ui.launcher import MainWindow
+
+APP_ID = "xyz.missowl.Starlit"
+
+parser = argparse.ArgumentParser(
+    description="A fast and extendable application launcher with plugin support"
+)
+parser.add_argument("--toggle", action="store_true", help="launch new starlit window")
+
+args = parser.parse_args()
 
 
-# simple caching
-cached_apps = []
-for app in get_apps():  # type: ignore
-    cached_apps.append(app)
+def on_new_connection():
+    socket = server.nextPendingConnection()
+    if socket and socket.waitForReadyRead(1000):
+        message = socket.readAll().data().decode()
+        match message:
+            case "toggle":
+                new_window()
+            case _:
+                print(message)
+        socket.close()
 
 
-# because thefuzz doesn't support me just saying bleh and using process with a specific scorer
-# we have custom function, glory to arstotzka
-def fuzzy_partial_match(query, choices, limit=3):
-    scored = [
-        (choice, fuzz.partial_token_sort_ratio(query, choice)) for choice in choices
-    ]
-    return sorted(scored, key=lambda x: x[1], reverse=True)[:limit]
+def new_window():
+    w = MainWindow()
+    w.show()
+    open_windows.append(w)
 
 
-class MainWindow(QtWidgets.QWidget):
-    def __init__(self):
-        super().__init__()
-        # initial window stuff
-        self.layout = QtWidgets.QVBoxLayout(self)
-        self.entry = QtWidgets.QLineEdit()
-        self.entry.setPlaceholderText("")
-        self.entry.setFixedSize(700, 100)
-        self.entry.textChanged.connect(self.finder)
-
-        # define theme
-        with open("./style/style.qss", "r") as f:
-            self.setStyleSheet(f.read())
-
-        self.layout.setContentsMargins(0, 0, 0, 0)
-        self.layout.addWidget(self.entry)
-
-    # equivalent to escclose()
-    def keyPressEvent(self, event: QtGui.QKeyEvent):
-        if event.key() == Qt.Key_Escape:
-            appie.exit()
-        elif event.key() == Qt.Key_Return:
-            self.handle_open_app()
-
-    def finder(self):
-        print(self.entry.text())
-
-        filtered_apps = []
-        if len(self.entry.text()) > 1:
-            filtered_apps = [
-                match[0].getName()
-                for match in fuzzy_partial_match(self.entry.text(), cached_apps)
-            ]
-        return filtered_apps
-
-    def handle_open_app(self):
-        apps = cached_apps
-        app_name = self.finder()
-        for app in apps:
-            if len(app_name) != 0 and app.getName().lower() == app_name[2].lower():
-                launch_app(app.getExec())
-                appie.exit()
-
+open_windows = []
 
 if __name__ == "__main__":
-    appie = QtWidgets.QApplication([])
+    if args.toggle and another_running_instance():
+        send_message("toggle")
+        sys.exit(0)
 
-    widget = MainWindow()
-    widget.setFixedSize(700, 100)
-    widget.setWindowTitle("Starlit")
-    widget.setWindowFlag(QtCore.Qt.FramelessWindowHint)
-    widget.show()
+    if another_running_instance():
+        print("it's already running >:p")
+        sys.exit(0)
 
-    sys.exit(appie.exec())
+    app = QtWidgets.QApplication([])
+    server = create_server()
+    server.newConnection.connect(on_new_connection)
+    app.setQuitOnLastWindowClosed(False)
+
+    # start to define the tray
+    icon = QIcon("icon.png")
+    tray = QtWidgets.QSystemTrayIcon()
+    tray.setIcon(icon)
+    tray.setToolTip("starlit!")
+
+    # ok now we have a menu :p
+    menu = QtWidgets.QMenu()
+    open = QAction("open")
+    open.triggered.connect(new_window)
+    menu.addAction(open)
+
+    quit = QAction("quit")
+    quit.triggered.connect(app.quit)
+    menu.addAction(quit)
+
+    tray.setContextMenu(menu)
+    tray.show()
+    sys.exit(app.exec())
