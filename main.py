@@ -1,6 +1,11 @@
 import sys, argparse
 from PySide6 import QtCore, QtWidgets
-from utils.server import another_running_instance, create_server, send_message
+from utils.server import (
+    another_running_instance,
+    create_server,
+    send_message,
+    on_new_connection,
+)
 from ui.launcher import MainWindow
 from ui.tray import Tray
 
@@ -12,18 +17,6 @@ parser = argparse.ArgumentParser(
 parser.add_argument("--toggle", action="store_true", help="launch new starlit window")
 
 args = parser.parse_args()
-
-
-def on_new_connection():
-    socket = server.nextPendingConnection()
-    if socket and socket.waitForReadyRead(1000):
-        message = socket.readAll().data().decode()
-        match message:
-            case "toggle":
-                new_window()
-            case _:
-                print(message)
-        socket.close()
 
 
 def new_window():
@@ -46,9 +39,8 @@ if __name__ == "__main__":
     app = QtWidgets.QApplication([])
     app.setQuitOnLastWindowClosed(False)
     server = create_server()
-    server.newConnection.connect(on_new_connection)
+    server.newConnection.connect(lambda: on_new_connection(server, new_window))
 
-    # start to define the tray
     tray = Tray(app, new_window)
 
     sys.exit(app.exec())

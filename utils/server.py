@@ -4,6 +4,18 @@ from PySide6.QtCore import QTimer
 APP_ID = "xyz.missowl.Starlit"
 
 
+def on_new_connection(server, new_window):
+    socket = server.nextPendingConnection()
+    if socket and socket.waitForReadyRead(1000):
+        message = socket.readAll().data().decode()
+        match message:
+            case "toggle":
+                new_window()
+            case _:
+                print(message)
+        socket.close()
+
+
 def send_message(msg):
     if another_running_instance():
         socket = QLocalSocket()
