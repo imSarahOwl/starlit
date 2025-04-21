@@ -1,8 +1,8 @@
 import sys, argparse
 from PySide6 import QtCore, QtWidgets
-from PySide6.QtGui import QIcon, QAction
 from utils.server import another_running_instance, create_server, send_message
 from ui.launcher import MainWindow
+from ui.tray import Tray
 
 APP_ID = "xyz.missowl.Starlit"
 
@@ -44,26 +44,11 @@ if __name__ == "__main__":
         sys.exit(0)
 
     app = QtWidgets.QApplication([])
+    app.setQuitOnLastWindowClosed(False)
     server = create_server()
     server.newConnection.connect(on_new_connection)
-    app.setQuitOnLastWindowClosed(False)
 
     # start to define the tray
-    icon = QIcon("icon.png")
-    tray = QtWidgets.QSystemTrayIcon()
-    tray.setIcon(icon)
-    tray.setToolTip("starlit!")
+    tray = Tray(app, new_window)
 
-    # ok now we have a menu :p
-    menu = QtWidgets.QMenu()
-    open = QAction("open")
-    open.triggered.connect(new_window)
-    menu.addAction(open)
-
-    quit = QAction("quit")
-    quit.triggered.connect(app.quit)
-    menu.addAction(quit)
-
-    tray.setContextMenu(menu)
-    tray.show()
     sys.exit(app.exec())
