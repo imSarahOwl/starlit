@@ -49,8 +49,6 @@ class MainWindow(QtWidgets.QWidget):
 
     def finder(self):
         print(self.entry.text())
-        for i in cached_apps:
-                print(i.getName())
         filtered_apps = []
         if len(self.entry.text()) > 1:
             filtered_apps = [
@@ -64,7 +62,5 @@ class MainWindow(QtWidgets.QWidget):
         app_name = self.finder()
         for app in apps:
             if len(app_name) != 0 and app.getName().lower() == app_name[0].lower():
-                print(app.getName())
-                print(app.getExec())
                 launch_app(app.getExec())
                 self.close()
