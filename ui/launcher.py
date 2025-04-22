@@ -24,6 +24,7 @@ class MainWindow(QtWidgets.QWidget):
         self.setFixedSize(700, 100)
         self.setWindowTitle("Starlit")
         self.setWindowFlag(QtCore.Qt.FramelessWindowHint)
+        self.setWindowFlag(QtCore.Qt.WindowStaysOnTopHint)
 
         # layout and entry stuff
         self.layout = QtWidgets.QVBoxLayout(self)
@@ -48,7 +49,8 @@ class MainWindow(QtWidgets.QWidget):
 
     def finder(self):
         print(self.entry.text())
-
+        for i in cached_apps:
+                print(i.getName())
         filtered_apps = []
         if len(self.entry.text()) > 1:
             filtered_apps = [
@@ -62,5 +64,7 @@ class MainWindow(QtWidgets.QWidget):
         app_name = self.finder()
         for app in apps:
             if len(app_name) != 0 and app.getName().lower() == app_name[0].lower():
+                print(app.getName())
+                print(app.getExec())
                 launch_app(app.getExec())
                 self.close()
