@@ -25,11 +25,12 @@ class MainWindow(QtWidgets.QWidget):
         self.setWindowTitle("Starlit")
         self.setWindowFlag(QtCore.Qt.FramelessWindowHint)
         self.setWindowFlag(QtCore.Qt.WindowStaysOnTopHint)
+        self.setAttribute(QtCore.Qt.WA_TranslucentBackground)
 
         # layout and entry stuff
         self.layout = QtWidgets.QVBoxLayout(self)
         self.entry = QtWidgets.QLineEdit()
-        self.entry.setPlaceholderText("")
+        self.entry.setPlaceholderText("search away!")
         self.entry.setFixedSize(700, 100)
         self.entry.textChanged.connect(self.finder)
 
