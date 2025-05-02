@@ -42,5 +42,5 @@ if __name__ == "__main__":
     server.newConnection.connect(lambda: on_new_connection(server, new_window))
 
     tray = Tray(app, new_window)
-
+    print("starlit is running!")
     sys.exit(app.exec())
