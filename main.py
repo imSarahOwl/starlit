@@ -1,4 +1,4 @@
-import sys, argparse
+import sys, argparse, os
 from PySide6 import QtCore, QtWidgets
 from utils.server import (
     another_running_instance,
@@ -24,6 +24,9 @@ def new_window():
     w.show()
     open_windows.append(w)
 
+def restart():
+    print("restarting starlit!")
+    os.execv(sys.executable, [sys.executable] + sys.argv)
 
 open_windows = []
 
@@ -41,6 +44,6 @@ if __name__ == "__main__":
     server = create_server()
     server.newConnection.connect(lambda: on_new_connection(server, new_window))
 
-    tray = Tray(app, new_window)
+    tray = Tray(app, new_window, restart)
     print("starlit is running!")
     sys.exit(app.exec())

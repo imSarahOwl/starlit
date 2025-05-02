@@ -3,7 +3,7 @@ from PySide6.QtGui import QIcon, QAction
 
 
 class Tray:
-    def __init__(self, app, new_window):
+    def __init__(self, app, new_window, restart):
         # start to define the tray
         self.icon = QIcon("icon.png")
         self.tray = QtWidgets.QSystemTrayIcon()
@@ -15,6 +15,10 @@ class Tray:
         self.open = QAction("open")
         self.open.triggered.connect(new_window)
         self.menu.addAction(self.open)
+        
+        self.restart = QAction("restart")
+        self.restart.triggered.connect(restart)
+        self.menu.addAction(self.restart)
 
         self.quit = QAction("quit")
         self.quit.triggered.connect(app.quit)
