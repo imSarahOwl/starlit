@@ -4,7 +4,6 @@ from PySide6.QtCore import Qt
 from utils.get_apps import get_apps
 from utils.launch_app import launch_app
 
-
 cached_apps = []
 for app in get_apps():  # type: ignore
     cached_apps.append(app)
@@ -43,20 +42,19 @@ class MainWindow(QtWidgets.QWidget):
 
     # equivalent to escclose()
     def keyPressEvent(self, event: QtGui.QKeyEvent):
-        if event.key() == Qt.Key_Escape:
-            self.close()
-        elif event.key() == Qt.Key_Return:
-            self.handle_open_app()
+        match event.key():
+            case Qt.Key_Escape:
+                self.close()
+            case Qt.Key_Return:
+                self.handle_open_app()
 
     def finder(self):
-        print(self.entry.text())
-        filtered_apps = []
-        if len(self.entry.text()) > 1:
-            filtered_apps = [
+        if len(self.entry.text()) > 2:
+            return [
                 match[0].getName()
                 for match in fuzzy_partial_match(self.entry.text(), cached_apps)
             ]
-        return filtered_apps
+        return []
 
     def handle_open_app(self):
         apps = cached_apps
