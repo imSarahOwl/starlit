@@ -3,6 +3,7 @@ from thefuzz import fuzz
 from PySide6.QtCore import Qt
 from utils.get_apps import get_apps
 from utils.launch_app import launch_app
+from ui.simpleresult import SimpleResult
 
 cached_apps = []
 for app in get_apps():  # type: ignore
@@ -31,7 +32,7 @@ class MainWindow(QtWidgets.QWidget):
         self.entry = QtWidgets.QLineEdit()
         self.entry.setPlaceholderText("search away!")
         self.entry.setFixedSize(700, 100)
-        self.entry.textChanged.connect(self.finder)
+        self.entry.textChanged.connect(self.updater)
 
         # define theme
         with open("style/style.qss", "r") as f:
@@ -51,15 +52,27 @@ class MainWindow(QtWidgets.QWidget):
     def finder(self):
         if len(self.entry.text()) > 2:
             return [
-                match[0].getName()
+                match[0]
                 for match in fuzzy_partial_match(self.entry.text(), cached_apps)
             ]
         return []
 
+    def updater(self):
+        for i in reversed(range(1, self.layout.count())):
+            item = self.layout.itemAt(i)
+            widget = item.widget()
+            if widget:
+                widget.setParent(None)
+
+        filtered_apps = self.finder()
+        for app in filtered_apps[:2]:
+            widget = SimpleResult(app.getName(), app.getIcon())
+            self.layout.addWidget(widget)
+
+        self.setFixedHeight(100 + (len(filtered_apps) * 100))
+
     def handle_open_app(self):
-        apps = cached_apps
         app_name = self.finder()
-        for app in apps:
-            if len(app_name) != 0 and app.getName().lower() == app_name[0].lower():
-                launch_app(app.getExec())
-                self.close()
+        if app_name:
+            launch_app(app_name[0].getExec())
+            self.close()
