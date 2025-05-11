@@ -10,10 +10,12 @@ for app in get_apps():  # type: ignore
     cached_apps.append(app)
 
 
-def fuzzy_partial_match(query, choices, limit=3):
-    scored = [
-        (choice, fuzz.partial_token_sort_ratio(query, choice)) for choice in choices
-    ]
+def fuzzy_partial_match(query, choices, limit=3, cut_off=70):
+    scored = []
+    for choice in choices:
+        score = fuzz.partial_token_sort_ratio(query, choice)
+        if score >= cut_off:
+            scored.append((choice, score))
     return sorted(scored, key=lambda x: x[1], reverse=True)[:limit]
 
 
