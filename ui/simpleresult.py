@@ -19,5 +19,4 @@ class SimpleResult(QtWidgets.QWidget):
 
         self.setStyleSheet("""
             font-size: 24px;
-            background-color: rgba(254, 254, 254, 204)
         """)
