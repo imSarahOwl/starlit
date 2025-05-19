@@ -31,26 +31,17 @@ class MainWindow(QtWidgets.QWidget):
 
         # layout and entry stuff
         self.layout = QtWidgets.QVBoxLayout(self)
-        self.layout.setContentsMargins(0, 0, 0, 0)
-        self.layout.setSpacing(0)
-
-        self.container = QtWidgets.QWidget()
-        self.container.setObjectName("mainContainer")
-        self.container.setAttribute(QtCore.Qt.WA_StyledBackground, True)
-        self.container_layout = QtWidgets.QVBoxLayout(self.container)
-        self.container_layout.setContentsMargins(0, 0, 0, 0)
-        self.container_layout.setSpacing(0)
-
         self.entry = QtWidgets.QLineEdit()
         self.entry.setPlaceholderText("search away!")
         self.entry.setFixedSize(700, 100)
         self.entry.textChanged.connect(self.updater)
 
-        self.container_layout.addWidget(self.entry)
-        self.layout.addWidget(self.container)
         # define theme
         with open("style/style.qss", "r") as f:
             self.setStyleSheet(f.read())
+
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout.addWidget(self.entry)
 
     # equivalent to escclose()
     def keyPressEvent(self, event: QtGui.QKeyEvent):
@@ -69,8 +60,8 @@ class MainWindow(QtWidgets.QWidget):
         return []
 
     def updater(self):
-        for i in reversed(range(1, self.container_layout.count())):
-            item = self.container_layout.itemAt(i)
+        for i in reversed(range(1, self.layout.count())):
+            item = self.layout.itemAt(i)
             widget = item.widget()
             if widget:
                 widget.setParent(None)
@@ -78,7 +69,7 @@ class MainWindow(QtWidgets.QWidget):
         filtered_apps = self.finder()
         for app in filtered_apps[:2]:
             widget = SimpleResult(app.getName(), app.getIcon())
-            self.container_layout.addWidget(widget)
+            self.layout.addWidget(widget)
 
         self.setFixedHeight(100 + (len(filtered_apps) * 100))
 
