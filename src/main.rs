@@ -17,10 +17,18 @@ fn build_ui(app: &Application) {
         .default_height(100)
         .default_width(700)
         .resizable(false)
+        .decorated(false)
         .build();
 
     window.set_size_request(700, 100);
     let entry = gtk::Entry::new();
+    entry.connect_changed(|e| {
+        finder(&e.text());
+    });
     window.add(&entry);
     window.show_all();
+}
+
+fn finder(text: &str) {
+    println!("{}", text)
 }
